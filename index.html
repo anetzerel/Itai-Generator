@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html dir="rtl">
+<head>
+	<title>Itay Generator</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap-grid.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.rtlcss.com/bootstrap/v4.0.0/css/bootstrap.min.css" integrity="sha384-P4uhUIGk/q1gaD/NdgkBIl3a6QywJjlsFJFk7SPRdruoGddvRVSwv5qFnvZ73cpz" crossorigin="anonymous">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.0.15/howler.min.js"></script>
+	<script src="responses.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body{
+			font-family: 'Varela Round', sans-serif;
+		}
+		.container{
+			padding-top: 50px;
+		}
+		@media screen and (max-width: 992px) {
+			.container{
+				padding-top: 20px;
+			}
+		}
+		[class*="col-"] { 
+			margin-bottom: 15px; 
+		}
+		.result{
+			margin-top: 20px;
+			width: 100%;
+			height: 150px;
+			background-color: #0000ffa8;
+			border-radius: 50px;	
+			display: flex;
+			flex-flow: column;
+			justify-content: center;
+			opacity: 0;
+			transition: all 0.1s ease-in-out;
+
+		}
+		.result.active{
+			opacity: 1;
+			margin-top: 40px;
+		}
+		.result-name{
+			text-align: center;
+			color:#fff;
+			font-size: 48px;
+		}
+		.itay-floating{
+			animation: floating-itay 1s infinite linear;
+		}
+		.itay-image{
+			display:none;
+			width: 100%;
+		}
+		@keyframes floating-itay {
+			0%{
+				transform: translateY(0);
+			}
+			25%{
+				transform: translateY(-2%);
+			}
+			75%{
+				transform: translateY(2%);
+			}
+			100%{
+				transform: translateY(0%);
+			}
+		}
+	</style>
+	<script>
+		$(function(){
+			$('form').submit(function(e){
+				e.preventDefault();
+				var restaurant_name = $('#restaurant_name').val();
+				if (restaurant_name == ''){
+					alert('הכנס שם ');
+					return false;
+				}
+				$('button').prop('disabled', true);
+				$('.itay').addClass('itay-floating');
+				setTimeout(function(){
+					var isTastyResult = isTasty(restaurant_name);
+					var opinion = getOpinion(isTastyResult);
+					$('.result-name').text(opinion.text);
+					playSound(opinion.soundSrc);
+					$('.itay').hide();
+					$('.itay-image').show();
+					$('.itay-image').attr('src',getPhoto());
+					$('.result').addClass('active');
+					$('.itay').removeClass('itay-floating');
+				},1000)
+				setTimeout(function(){
+					$('.itay').show();
+					$('.itay-image').hide();
+					$('.result').removeClass('active');
+					$('button').prop('disabled', false);
+				},3500)
+				
+			})
+		})
+
+		function isTasty(restaurant_name){
+			return restaurant_name.split('').length % 2 == 0 ? "tasty" : "notTasty";
+		}
+		function getOpinion(result){
+			var getResponse = itayResponses[result];
+			return getResponse[Math.floor(getResponse.length * Math.random())];
+		}
+		function getPhoto(){
+			var photosArr = ['images/itay-eating1.jpg','images/itay-eating2.jpg','images/itay-eating3.jpg','images/itay-eating4.jpg','images/itay-eating5.jpg'];
+			return photosArr[Math.floor(photosArr.length * Math.random())];
+		}
+		function playSound(soundSrc){
+			var sound = new Howl({
+				src: soundSrc
+			});
+			sound.play();
+		}
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-6 col-12">
+				<h1>שאל את איתי</h1>
+				<h3>שאל את איתי איך האוכל באיזה מסעדה שתרצה</h3>
+				<div class="row">
+					<div class="col-md-8">
+						<form>
+							<div class="form-group">
+								<input type="text" class="form-control" id="restaurant_name" placeholder="שם המסעדה" autocomplete="off">
+							</div>
+							<button type="submit" class="btn btn-primary">שאל את איתי</button>
+						</form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 col-12">
+				<img class="itay" src="images/itay.gif" alt="">
+				<img class="itay-image" src="" alt="">
+			</div>
+		</div>
+		<div class="result">
+			<div class="result-name"></div>
+		</div>
+	</div>
+</body>
+</html>
+
